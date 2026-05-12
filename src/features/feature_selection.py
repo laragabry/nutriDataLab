@@ -1,9 +1,3 @@
-"""
-feature_selection.py
-Seleciona as features mais relevantes com base na importância do Random Forest.
-Compara desempenho do modelo com todas as features vs. features selecionadas.
-"""
-
 import pandas as pd
 import numpy as np
 import matplotlib
@@ -19,7 +13,7 @@ FIGURES_DIR = Path(__file__).resolve().parents[2] / "reports" / "figures"
 FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 
 RANDOM_STATE = 42
-THRESHOLD    = 0.01   # features com importância abaixo deste valor são removidas
+THRESHOLD    = 0.01  
 
 
 def get_feature_importance(X: pd.DataFrame, y: pd.Series, task: str = "classification") -> pd.DataFrame:
@@ -58,29 +52,21 @@ def compare_with_without_features(
     y_reg: pd.Series,
     selected_features: list[str],
 ) -> pd.DataFrame:
-    """
-    Treina Random Forest com todas as features e só com as selecionadas.
-    Compara F1 (classificação) e R² (regressão).
-    """
+
     results = []
 
     for label, cols in [("Todas as features", X.columns.tolist()), ("Features selecionadas", selected_features)]:
         X_sub = X[cols]
-
-        # Classificação
         X_tr, X_te, y_tr, y_te = train_test_split(X_sub, y_class, test_size=0.3,
                                                     random_state=RANDOM_STATE, stratify=y_class)
         clf = RandomForestClassifier(n_estimators=100, random_state=RANDOM_STATE, n_jobs=-1)
         clf.fit(X_tr, y_tr)
         f1 = f1_score(y_te, clf.predict(X_te), zero_division=0)
-
-        # Regressão
         X_tr2, X_te2, y_tr2, y_te2 = train_test_split(X_sub, y_reg, test_size=0.3,
                                                         random_state=RANDOM_STATE)
         reg = RandomForestRegressor(n_estimators=100, random_state=RANDOM_STATE, n_jobs=-1)
         reg.fit(X_tr2, y_tr2)
         r2 = r2_score(y_te2, reg.predict(X_te2))
-
         results.append({"Configuração": label, "Nº Features": len(cols), "F1": round(f1, 4), "R²": round(r2, 4)})
         print(f"  {label:<25} | Features: {len(cols):>3} | F1: {f1:.4f} | R²: {r2:.4f}")
 
@@ -136,21 +122,16 @@ def run_feature_selection(X: pd.DataFrame, y_class: pd.Series, y_reg: pd.Series)
     print("\n" + "=" * 60)
     print(" SELEÇÃO DE FEATURES")
     print("=" * 60)
-
-    # Importância para classificação
     print("\n[Classificação]")
     imp_class = get_feature_importance(X, y_class, task="classification")
     plot_feature_importance_full(imp_class, title="Classificação")
 
-    # Importância para regressão
     print("\n[Regressão]")
     imp_reg = get_feature_importance(X, y_reg, task="regression")
     plot_feature_importance_full(imp_reg, title="Regressão")
 
-    # Seleciona com base na classificação (target principal do enunciado)
     selected = select_features(X, imp_class)
 
-    # Compara desempenho
     print("\n Comparação de desempenho:")
     comparison = compare_with_without_features(X, y_class, y_reg, selected)
     print("\n", comparison.to_string(index=False))

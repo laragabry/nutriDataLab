@@ -1,8 +1,3 @@
-"""
-plots.py
-Funções de visualização para EDA e resultados de modelos.
-"""
-
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -24,10 +19,6 @@ def _save(fig, name: str):
     print(f"✅ Figura salva: {path.name}")
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# TARGETS
-# ══════════════════════════════════════════════════════════════════════════════
-
 def plot_target_distribution(df: pd.DataFrame):
     fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 
@@ -45,10 +36,6 @@ def plot_target_distribution(df: pd.DataFrame):
 
     _save(fig, "target_distribution.png")
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-# CORRELAÇÕES
-# ══════════════════════════════════════════════════════════════════════════════
 
 def plot_correlation_heatmap(df: pd.DataFrame):
     num_df = df.select_dtypes(include="number")
@@ -84,15 +71,10 @@ def plot_correlation_with_target(df: pd.DataFrame):
     _save(fig, "correlation_with_targets.png")
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# SEXO / GÉNERO
-# ══════════════════════════════════════════════════════════════════════════════
-
 def plot_gender_vs_success(df: pd.DataFrame):
     """Taxa de sucesso e perda média de peso por sexo."""
     fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
-    # Mapeia valores numéricos de volta se já foi encoded
     gender_col = df["gender"].copy()
     if gender_col.dtype != object:
         gender_col = gender_col.map({0: "Feminino", 1: "Masculino"}).fillna(gender_col.astype(str))
@@ -118,10 +100,6 @@ def plot_gender_vs_success(df: pd.DataFrame):
     plt.tight_layout()
     _save(fig, "gender_vs_success.png")
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-# TIPO DE DIETA
-# ══════════════════════════════════════════════════════════════════════════════
 
 def plot_diet_vs_success(df: pd.DataFrame):
     """Taxa de sucesso e perda média por tipo/nome de dieta."""
@@ -151,15 +129,10 @@ def plot_diet_vs_success(df: pd.DataFrame):
     _save(fig, "diet_vs_success.png")
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# PERFIL DO NUTRICIONISTA
-# ══════════════════════════════════════════════════════════════════════════════
-
 def plot_nutritionist_vs_outcome(df: pd.DataFrame):
     """Impacto do perfil do nutricionista no sucesso e perda de peso."""
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
-    # Abordagem (approach → health_condition após rename)
     col = "health_condition" if "health_condition" in df.columns else None
 
     if col:
@@ -172,11 +145,9 @@ def plot_nutritionist_vs_outcome(df: pd.DataFrame):
         for i, val in enumerate(success_rate.values):
             axes[0].text(i, val + 0.5, f"{val:.1f}%", ha="center", fontsize=9)
 
-    # Experiência do nutricionista vs perda de peso
     if "experience_years" in df.columns:
         axes[1].scatter(df["experience_years"], df["weight_loss_kg"],
                         alpha=0.3, color="#e67e22", s=15)
-        # linha de tendência
         tmp = df[["experience_years", "weight_loss_kg"]].dropna()
         if len(tmp) > 1:
             m, b = np.polyfit(tmp["experience_years"], tmp["weight_loss_kg"], 1)
@@ -209,10 +180,6 @@ def plot_specialty_vs_success(df: pd.DataFrame):
     plt.tight_layout()
     _save(fig, "specialty_vs_success.png")
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-# IDADE / ADERÊNCIA / PESO
-# ══════════════════════════════════════════════════════════════════════════════
 
 def plot_age_vs_weight_loss(df: pd.DataFrame):
     fig, ax = plt.subplots(figsize=(8, 5))
@@ -301,10 +268,6 @@ def plot_bmi_vs_weight_loss(df: pd.DataFrame):
     _save(fig, "bmi_vs_weight_loss.png")
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# CLUSTERING
-# ══════════════════════════════════════════════════════════════════════════════
-
 def plot_clustering_comparison(X: pd.DataFrame, labels_kmeans: np.ndarray, labels_hier: np.ndarray):
     """
     Compara K-Means vs Clustering Hierárquico lado a lado em PCA 2D.
@@ -338,10 +301,6 @@ def plot_clustering_comparison(X: pd.DataFrame, labels_kmeans: np.ndarray, label
     print(f"   K-Means Silhouette: {sil_km:.3f} | Hierárquico Silhouette: {sil_hier:.3f}")
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# OUTLIERS
-# ══════════════════════════════════════════════════════════════════════════════
-
 def plot_outliers_boxplot(df: pd.DataFrame):
     """
     Boxplots das principais variáveis numéricas para identificar outliers
@@ -371,8 +330,6 @@ def plot_outliers_boxplot(df: pd.DataFrame):
                         flierprops=dict(marker="o", color="#e74c3c", alpha=0.5, markersize=4))
         axes[i].set_title(f"{col}\n({n_out} outliers extremos)", fontsize=9)
         axes[i].set_ylabel(col, fontsize=8)
-
-    # Esconde eixos vazios
     for j in range(i + 1, len(axes)):
         axes[j].set_visible(False)
 
@@ -381,9 +338,7 @@ def plot_outliers_boxplot(df: pd.DataFrame):
     _save(fig, "outliers_boxplot.png")
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# MODELOS
-# ══════════════════════════════════════════════════════════════════════════════
+
 
 def plot_feature_importance(importance_df: pd.DataFrame, title: str = "Feature Importance"):
     fig, ax = plt.subplots(figsize=(8, 6))

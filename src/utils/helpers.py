@@ -1,8 +1,3 @@
-"""
-helpers.py
-Funções utilitárias gerais do projeto.
-"""
-
 import time
 import json
 import pandas as pd
@@ -14,7 +9,6 @@ REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def timer(func):
-    """Decorator que mede o tempo de execução de uma função."""
     @wraps(func)
     def wrapper(*args, **kwargs):
         start = time.time()
@@ -26,7 +20,6 @@ def timer(func):
 
 
 def describe_dataset(df: pd.DataFrame, name: str = "dataset") -> dict:
-    """Retorna e imprime estatísticas descritivas completas."""
     stats = {
         "shape":          df.shape,
         "missing_total":  int(df.isnull().sum().sum()),

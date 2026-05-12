@@ -1,10 +1,3 @@
-"""
-train.py
-Treina modelos de classificação (diet_success) e regressão (weight_loss_kg).
-Divisão: 70% treino | 15% validação | 15% teste
-Otimização de hiperparâmetros com RandomizedSearchCV no conjunto de treino+validação.
-"""
-
 import pickle
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -25,7 +18,6 @@ MODELS_DIR.mkdir(parents=True, exist_ok=True)
 
 RANDOM_STATE = 42
 
-# ── Grids de hiperparâmetros ───────────────────────────────────────────────────
 PARAM_GRIDS_CLASS = {
     "LogisticRegression": {
         "C":           [0.01, 0.1, 1, 10, 100],
@@ -74,7 +66,6 @@ PARAM_GRIDS_REG = {
     },
 }
 
-# ── Modelos base (sem hiperparâmetros — ponto de partida para o search) ────────
 BASE_CLASSIFIERS = {
     "LogisticRegression": LogisticRegression(max_iter=2000, random_state=RANDOM_STATE),
     "DecisionTree":       DecisionTreeClassifier(random_state=RANDOM_STATE),
@@ -106,10 +97,6 @@ def _split_three(X, y, stratify=None):
 
 
 def _tune(base_model, param_grid, X_train, y_train, scoring, n_iter=20):
-    """
-    RandomizedSearchCV no conjunto de treino.
-    Retorna o melhor estimador já treinado.
-    """
     search = RandomizedSearchCV(
         base_model,
         param_grid,
@@ -123,12 +110,8 @@ def _tune(base_model, param_grid, X_train, y_train, scoring, n_iter=20):
     search.fit(X_train, y_train)
     return search.best_estimator_, search.best_params_, search.best_score_
 
-
-# ── Classificação ──────────────────────────────────────────────────────────────
 def train_classifiers(X: pd.DataFrame, y: pd.Series) -> dict:
     X_train, X_val, X_test, y_train, y_val, y_test = _split_three(X, y, stratify=y)
-
-    # Treino+validação juntos para avaliação final após tuning
     X_trainval = pd.concat([X_train, X_val])
     y_trainval = pd.concat([y_train, y_val])
 
@@ -139,7 +122,6 @@ def train_classifiers(X: pd.DataFrame, y: pd.Series) -> dict:
         model, best_params, best_cv = _tune(
             base_model, PARAM_GRIDS_CLASS[name], X_train, y_train, scoring="f1"
         )
-        # Retreina com treino+validação usando os melhores parâmetros
         model.fit(X_trainval, y_trainval)
 
         val_f1  = f1_score(y_val,  model.predict(X_val),  zero_division=0)
@@ -160,8 +142,6 @@ def train_classifiers(X: pd.DataFrame, y: pd.Series) -> dict:
 
     return trained
 
-
-# ── Regressão ──────────────────────────────────────────────────────────────────
 def train_regressors(X: pd.DataFrame, y: pd.Series) -> dict:
     X_train, X_val, X_test, y_train, y_val, y_test = _split_three(X, y)
 

@@ -1,21 +1,13 @@
-"""
-load_data.py
-Carrega os 4 CSVs brutos e retorna DataFrames com validação básica.
-"""
-
 import pandas as pd
 from pathlib import Path
 
 RAW_DIR = Path(__file__).resolve().parents[2] / "data" / "raw"
-
-# Nome real dos arquivos no disco -> chave interna usada no pipeline
 EXPECTED_FILES = {
     "patients":      "patients.csv",
     "diets":         "diets.csv",
     "nutritionists": "nutritionists.csv",
     "results":       "outcomes.csv",
 }
-
 
 def load_all(raw_dir: Path = RAW_DIR) -> dict[str, pd.DataFrame]:
     data = {}

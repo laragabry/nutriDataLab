@@ -1,8 +1,3 @@
-"""
-predict.py
-Inferência com modelos treinados. Carrega o melhor modelo e faz previsões.
-"""
-
 import pickle
 import numpy as np
 import pandas as pd
@@ -20,18 +15,7 @@ def load_model(filename: str):
 
 
 def predict_diet_success(patient_features: pd.DataFrame, model_name: str = "RandomForest") -> np.ndarray:
-    """
-    Prevê sucesso da dieta (0/1) para um ou mais pacientes.
 
-    Parâmetros
-    ----------
-    patient_features : DataFrame com as mesmas colunas usadas no treino
-    model_name       : nome do modelo (sem prefixo/sufixo)
-
-    Retorna
-    -------
-    Array de previsões (0 = insucesso, 1 = sucesso)
-    """
     model  = load_model(f"classifier_{model_name}.pkl")
     preds  = model.predict(patient_features)
     probas = model.predict_proba(patient_features)[:, 1] if hasattr(model, "predict_proba") else None
@@ -39,14 +23,9 @@ def predict_diet_success(patient_features: pd.DataFrame, model_name: str = "Rand
 
 
 def predict_weight_loss(patient_features: pd.DataFrame, model_name: str = "RandomForest") -> np.ndarray:
-    """
-    Prevê perda de peso (kg) para um ou mais pacientes.
-    """
     model = load_model(f"regressor_{model_name}.pkl")
     return model.predict(patient_features)
 
-
-# ?? Exemplo de uso ?????????????????????????????????????????????????????????????
 if __name__ == "__main__":
     print("Carregando dados processados para demonstração...")
     processed_path = Path(__file__).resolve().parents[2] / "data" / "processed" / "dataset_processed.csv"

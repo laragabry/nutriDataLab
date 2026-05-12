@@ -1,8 +1,3 @@
-"""
-preprocess.py
-Limpeza, encoding, normalização e tratamento de outliers.
-"""
-
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler, LabelEncoder
@@ -11,10 +6,8 @@ from pathlib import Path
 PROCESSED_DIR = Path(__file__).resolve().parents[2] / "data" / "processed"
 PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
-# Colunas que não entram no modelo
 DROP_COLS = ["patient_id", "diet_id", "nutritionist_id"]
 
-# Colunas numéricas para normalização (apenas as que existem nos novos dados)
 SCALE_COLS = [
     "age", "height_cm", "weight_kg", "bmi",
     "adherence_pct", "initial_motivation", "sleep_hours",
@@ -58,30 +51,23 @@ def scale_features(df: pd.DataFrame) -> tuple[pd.DataFrame, StandardScaler]:
 def preprocess(df_raw: pd.DataFrame, scale: bool = True) -> dict:
     df = df_raw.copy()
 
-    # 1. Remove IDs
     df.drop(columns=[c for c in DROP_COLS if c in df.columns], inplace=True)
 
-    # 2. Trata nulos
     for col in df.select_dtypes(include="number").columns:
         df[col] = df[col].fillna(df[col].median())
     for col in df.select_dtypes(include="object").columns:
         df[col] = df[col].fillna(df[col].mode()[0])
 
-    # 3. Remove outliers
     df = remove_outliers_iqr(df, df.select_dtypes(include="number").columns.tolist())
 
-    # 4. Separa targets
     y_class = df.pop("diet_success")
     y_reg   = df.pop("weight_loss_kg")
 
-    # 5. Remove leakage (colunas que não existem mais nos novos dados, mas por segurança)
     leakage_cols = ["final_bmi", "satisfaction_score"]
     df.drop(columns=[c for c in leakage_cols if c in df.columns], inplace=True)
 
-    # 6. Encoding
     df, encoders = encode_categoricals(df)
 
-    # 7. Normalização
     scaler = None
     if scale:
         df, scaler = scale_features(df)
