@@ -16,7 +16,7 @@ def _save(fig, name: str):
     path = FIGURES_DIR / name
     fig.savefig(path, dpi=130, bbox_inches="tight")
     plt.close(fig)
-    print(f"✅ Figura salva: {path.name}")
+    print(f" Figura salva: {path.name}")
 
 
 def plot_target_distribution(df: pd.DataFrame):

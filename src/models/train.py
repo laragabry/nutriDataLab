@@ -116,9 +116,9 @@ def train_classifiers(X: pd.DataFrame, y: pd.Series) -> dict:
     y_trainval = pd.concat([y_train, y_val])
 
     trained = {}
-    print("\n🔵 Treinando e otimizando Classificadores...")
+    print("\n Treinando e otimizando Classificadores...")
     for name, base_model in BASE_CLASSIFIERS.items():
-        print(f"\n   🔍 {name} — RandomizedSearchCV...")
+        print(f"\n    {name} — RandomizedSearchCV...")
         model, best_params, best_cv = _tune(
             base_model, PARAM_GRIDS_CLASS[name], X_train, y_train, scoring="f1"
         )
@@ -149,9 +149,9 @@ def train_regressors(X: pd.DataFrame, y: pd.Series) -> dict:
     y_trainval = pd.concat([y_train, y_val])
 
     trained = {}
-    print("\n🟢 Treinando e otimizando Regressores...")
+    print("\n Treinando e otimizando Regressores...")
     for name, base_model in BASE_REGRESSORS.items():
-        print(f"\n   🔍 {name} — RandomizedSearchCV...")
+        print(f"\n    {name} — RandomizedSearchCV...")
         model, best_params, best_cv = _tune(
             base_model, PARAM_GRIDS_REG[name], X_train, y_train,
             scoring="neg_root_mean_squared_error"
